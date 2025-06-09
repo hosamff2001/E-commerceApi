@@ -12,8 +12,6 @@ namespace EcommerceApi.Services.Categores
         }
         public Task<CategoryModel> CreateCategory(CategoryModelDto category)
         {
-            if (string.IsNullOrWhiteSpace(category.Category_name) || string.IsNullOrWhiteSpace(category.Category_description))
-                throw new ArgumentException("Category name and description cannot be empty.");
             var newCategory = new CategoryModel
             {
                 category_name = category.Category_name,
@@ -28,7 +26,7 @@ namespace EcommerceApi.Services.Categores
         {
             var category = context.CategoryModel.FirstOrDefault(c => c.category_id == id);
             if (category == null)
-                throw new KeyNotFoundException($"Category with ID {id} not found.");
+                return null;
             context.CategoryModel.Remove(category);
             context.SaveChanges();
             return Task.FromResult(category);
@@ -49,11 +47,10 @@ namespace EcommerceApi.Services.Categores
 
         public Task<CategoryModel> UpdateCategory(int id, CategoryModelDto category)
         {
-            if (string.IsNullOrWhiteSpace(category.Category_name) || string.IsNullOrWhiteSpace(category.Category_description))
-                throw new ArgumentException("Category name and description cannot be empty.");
+            
             var existingCategory = context.CategoryModel.FirstOrDefault(c => c.category_id == id);
             if (existingCategory == null)
-                throw new KeyNotFoundException($"Category with ID {id} not found.");
+                return null;
             existingCategory.category_name = category.Category_name;
             existingCategory.category_description = category.Category_description;
             context.SaveChanges();

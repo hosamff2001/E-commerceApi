@@ -82,7 +82,7 @@ namespace EcommerceApi.Services.Products
         {
             var product = await context.ProductModel.FirstOrDefaultAsync(p => p.product_id == id);
             if (product == null)
-                throw new KeyNotFoundException($"Product with ID {id} not found.");
+                return null;
             context.ProductModel.Remove(product);
             await context.SaveChangesAsync();
             return product;
@@ -97,14 +97,14 @@ namespace EcommerceApi.Services.Products
         public async Task<ProductModel> GetProductById(int id)
         {
             var product = await context.ProductModel.FirstOrDefaultAsync(p => p.product_id == id);
-            return product ?? throw new KeyNotFoundException($"Product with ID {id} not found.");
+            return product;
         }
 
         public async Task<ProductModel> UpdateProduct(int id, ProductModelDto product)
         {
             var existingProduct = await context.ProductModel.FirstOrDefaultAsync(p => p.product_id == id);
             if (existingProduct == null)
-                throw new KeyNotFoundException($"Product with ID {id} not found.");
+                return null;
             existingProduct.product_name = product.product_name;
             existingProduct.product_description = product.product_description;
             existingProduct.price = product.price;
