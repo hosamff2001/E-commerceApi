@@ -1,5 +1,6 @@
 ﻿using EcommerceApi.Models.Products;
 using EcommerceApi.Services.Products;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcommerceApi.Controllers
@@ -8,49 +9,90 @@ namespace EcommerceApi.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly IProductService service;
-        public ProductController(IProductService service)
+        private readonly IProductService _productService;
+
+        public ProductController(IProductService productService)
         {
-            this.service = service;
+            _productService = productService;
         }
-        [HttpGet("Get_All_Products")]
-        public async Task<IActionResult> GetAll()
+
+       
+        [HttpGet]
+        //[AllowAnonymous]
+        public async Task<IActionResult> GetAllProducts()
         {
-            List<ProductModel> products = await service.GetAllProducts();
+            var products = await _productService.GetAllProducts();
             return Ok(products);
         }
-        [HttpGet("Get_Product_By_Id")]
-        public async Task<IActionResult> GetById(int id)
+
+        [HttpGet("{id}")]
+       // [AllowAnonymous]
+        public async Task<IActionResult> GetProductById(int id)
         {
-            ProductModel product = await service.GetProductById(id);
+            var product = await _productService.GetProductById(id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
             return Ok(product);
         }
-        [HttpPut("Update_Product")]
-        public async Task<IActionResult> Update(int id, [FromForm] ProductModelDto product)
+
+        [HttpPost]
+       // [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateProduct([FromForm] ProductModelDto productDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            ProductModel updatedProduct = await service.UpdateProduct(id, product);
+
+            var createdProduct = await _productService.CreatProduct(productDto);
+
+            return CreatedAtAction(
+                nameof(GetProductById),
+                new { id = createdProduct.product_id },
+                createdProduct);
+        }
+
+        [HttpPut("{id}")]
+      //  [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateProduct(
+            [FromRoute] int id,
+            [FromForm] ProductModelDto productDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var existingProduct = await _productService.GetProductById(id);
+
+            if (existingProduct == null)
+            {
+                return NotFound();
+            }
+
+            var updatedProduct = await _productService.UpdateProduct(id, productDto);
+
             return Ok(updatedProduct);
         }
-        [HttpPost("Create_Product")]
-        public async Task<IActionResult> Create([FromForm] ProductModelDto product)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            ProductModel newProduct = await service.CreatProduct(product);
-            return CreatedAtAction(nameof(GetById), new { id = newProduct.product_id }, newProduct);
-        }
-        [HttpDelete("Delete_Product")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            ProductModel deletedProduct = await service.DeleteProduct(id);
-            return Ok(deletedProduct);
 
+        [HttpDelete("{id}")]
+      //  [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var existingProduct = await _productService.GetProductById(id);
+
+            if (existingProduct == null)
+            {
+                return NotFound();
+            }
+
+            await _productService.DeleteProduct(id);
+
+            return NoContent();
         }
     }
 }

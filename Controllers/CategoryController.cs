@@ -1,5 +1,6 @@
 ﻿using EcommerceApi.Models.Categores;
 using EcommerceApi.Services.Categores;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcommerceApi.Controllers
@@ -8,48 +9,89 @@ namespace EcommerceApi.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-       private readonly ICategoryService service;
-        public CategoryController(ICategoryService service)
+        private readonly ICategoryService _categoryService;
+
+        public CategoryController(ICategoryService categoryService)
         {
-            this.service = service;
+            _categoryService = categoryService;
         }
-        [HttpGet("Get_All_Categories")]
-        public async Task<IActionResult> GetAll()
+
+        [HttpGet]
+        //[AllowAnonymous]
+        public async Task<IActionResult> GetAllCategories()
         {
-            List<CategoryModel> categories = await service.GetAllCategories();
+            var categories = await _categoryService.GetAllCategories();
             return Ok(categories);
         }
-        [HttpGet("Get_Category_By_Id")]
-        public async Task<IActionResult> GetById(int id)
+
+        [HttpGet("{id}")]
+        //[AllowAnonymous]
+        public async Task<IActionResult> GetCategoryById(int id)
         {
-            CategoryModel category = await service.GetCategoryById(id);
+            var category = await _categoryService.GetCategoryById(id);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+
             return Ok(category);
         }
-        [HttpPut("Update_Category")]
-        public async Task<IActionResult> Update(int id, CategoryModelDto category)
+
+        [HttpPost]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryModelDto categoryDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            CategoryModel updatedCategory = await service.UpdateCategory(id, category);
+
+            var createdCategory = await _categoryService.CreateCategory(categoryDto);
+
+            return CreatedAtAction(
+                nameof(GetCategoryById),
+                new { id = createdCategory.category_id },
+                createdCategory);
+        }
+
+        [HttpPut("{id}")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateCategory(
+            [FromRoute] int id,
+            [FromBody] CategoryModelDto categoryDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var existingCategory = await _categoryService.GetCategoryById(id);
+
+            if (existingCategory == null)
+            {
+                return NotFound();
+            }
+
+            var updatedCategory = await _categoryService.UpdateCategory(id, categoryDto);
+
             return Ok(updatedCategory);
         }
-        [HttpPost("Create_Category")]
-        public async Task<IActionResult> Create( CategoryModelDto category)
+
+        [HttpDelete("{id}")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteCategory(int id)
         {
-            if (!ModelState.IsValid)
+            var existingCategory = await _categoryService.GetCategoryById(id);
+
+            if (existingCategory == null)
             {
-                return BadRequest(ModelState);
+                return NotFound();
             }
-            CategoryModel newCategory = await service.CreateCategory(category);
-            return CreatedAtAction(nameof(GetById), new { id = newCategory.category_id }, newCategory);
-        }
-        [HttpDelete("Delete_Category")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            CategoryModel deletedCategory = await service.DeleteCategory(id);
-            return Ok(deletedCategory);
+
+            await _categoryService.DeleteCategory(id);
+
+            return NoContent();
         }
     }
 }
