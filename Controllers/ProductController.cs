@@ -1,4 +1,5 @@
-﻿using EcommerceApi.Models.Products;
+﻿using EcommerceApi.Models.Pagination;
+using EcommerceApi.Models.Products;
 using EcommerceApi.Services.Products;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,13 +17,25 @@ namespace EcommerceApi.Controllers
             _productService = productService;
         }
 
-       
+
         [HttpGet]
-        //[AllowAnonymous]
-        public async Task<IActionResult> GetAllProducts()
+      //  [AllowAnonymous]
+        public async Task<IActionResult> GetAllProducts(
+          [FromQuery] int pageNumber = 1,
+          [FromQuery] int pageSize = 10)
         {
-            var products = await _productService.GetAllProducts();
-            return Ok(products);
+            // Validate page size (you might want to set a maximum)
+            pageSize = Math.Min(pageSize, 100);
+
+            var (products, totalRecords) = await _productService.GetAllProducts(pageNumber, pageSize);
+
+            var response = new PagedResponse<ProductModel>(
+                products,
+                pageNumber,
+                pageSize,
+                totalRecords);
+
+            return Ok(response);
         }
 
         [HttpGet("{id}")]

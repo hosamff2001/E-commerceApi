@@ -88,10 +88,20 @@ namespace EcommerceApi.Services.Products
             return product;
         }
 
-        public async Task<List<ProductModel>> GetAllProducts()
+        public async Task<(List<ProductModel>, int)> GetAllProducts(int pageNumber, int pageSize)
         {
-            List<ProductModel> productModels = await context.ProductModel.ToListAsync();
-            return productModels;
+            var query = context.ProductModel.AsQueryable();
+
+            // Get total count before pagination
+            var totalRecords = await query.CountAsync();
+
+            // Apply pagination
+            var products = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (products, totalRecords);
         }
 
         public async Task<ProductModel> GetProductById(int id)

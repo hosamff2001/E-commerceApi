@@ -1,4 +1,5 @@
 ﻿using EcommerceApi.Models.Categores;
+using EcommerceApi.Models.Pagination;
 using EcommerceApi.Services.Categores;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +19,20 @@ namespace EcommerceApi.Controllers
 
         [HttpGet]
         //[AllowAnonymous]
-        public async Task<IActionResult> GetAllCategories()
+        public async Task<IActionResult> GetAllCategories(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+            )
         {
-            var categories = await _categoryService.GetAllCategories();
-            return Ok(categories);
+            pageSize = Math.Min(pageSize, 100); 
+            var (categories, totalRecords) = await _categoryService.GetAllCategories(pageNumber, pageSize);
+            var response = new PagedResponse<CategoryModel>(
+                categories,
+                pageNumber,
+                pageSize,
+                totalRecords);
+            return Ok(response);
+
         }
 
         [HttpGet("{id}")]

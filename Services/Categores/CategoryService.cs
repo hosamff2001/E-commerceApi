@@ -1,5 +1,6 @@
 ﻿using EcommerceApi.Models.Categores;
 using EcommerceApi.Models.DbContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace EcommerceApi.Services.Categores
 {
@@ -32,11 +33,16 @@ namespace EcommerceApi.Services.Categores
             return Task.FromResult(category);
         }
 
-        public Task<List<CategoryModel>> GetAllCategories()
+        public async Task<(List<CategoryModel>,int)> GetAllCategories(int pageNumber, int pageSize)
         {
-            var categories = context.CategoryModel.ToList();
-            
-            return Task.FromResult(categories);
+            var query = context.CategoryModel.AsQueryable();
+
+            var totalCount = await query.CountAsync();
+            var categories =await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            return (categories, totalCount);
         }
 
         public Task<CategoryModel> GetCategoryById(int id)
