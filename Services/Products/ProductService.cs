@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using EcommerceApi.Extentions;
 using EcommerceApi.Models.DbContext;
 using EcommerceApi.Models.Products;
 using EcommerceApi.Services.UploadFilesSrvice;
@@ -68,9 +69,8 @@ namespace EcommerceApi.Services.Products
             var totalRecords = await query.CountAsync();
 
             // Apply pagination
-            var products = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+            var products =  await query
+                .Paginate(pageNumber, pageSize)
                 .ToListAsync();
 
             return (products, totalRecords);

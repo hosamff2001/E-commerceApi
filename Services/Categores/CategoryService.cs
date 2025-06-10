@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using EcommerceApi.Extentions;
 using EcommerceApi.Models.Categores;
 using EcommerceApi.Models.DbContext;
 using Microsoft.EntityFrameworkCore;
@@ -38,8 +39,7 @@ namespace EcommerceApi.Services.Categores
 
             var totalCount = await query.CountAsync();
             var categories =await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+                .Paginate(pageNumber, pageSize)
                 .ToListAsync();
             return (categories, totalCount);
         }
