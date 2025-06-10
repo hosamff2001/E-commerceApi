@@ -1,4 +1,5 @@
-﻿using EcommerceApi.Models.Categores;
+﻿using AutoMapper;
+using EcommerceApi.Models.Categores;
 using EcommerceApi.Models.DbContext;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,17 +8,15 @@ namespace EcommerceApi.Services.Categores
     public class CategoryService : ICategoryService
     {
         private readonly ApplicationDBContext context;
-        public CategoryService(ApplicationDBContext applicationDBContext)
+        private readonly IMapper mapper;
+        public CategoryService(ApplicationDBContext applicationDBContext,IMapper mapper)
         {
             context = applicationDBContext;
+            this.mapper = mapper;
         }
         public Task<CategoryModel> CreateCategory(CategoryModelDto category)
         {
-            var newCategory = new CategoryModel
-            {
-                category_name = category.Category_name,
-                category_description = category.Category_description
-            };
+            var newCategory = mapper.Map<CategoryModel>(category);
             context.Add(newCategory);
             context.SaveChanges();
             return Task.FromResult(newCategory);

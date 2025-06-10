@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using EcommerceApi.Services.Products;
 using EcommerceApi.Services.Categores;
+using EcommerceApi.Services.UploadFilesSrvice;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,10 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+//add AutoMapper
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+//End
 
 // Add services to the container.
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
@@ -93,7 +98,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
-
+builder.Services.AddScoped<IUploadFilesService, UploadFilesService>();
 
 // End 
 var app = builder.Build();

@@ -1,4 +1,5 @@
-﻿using EcommerceApi.Models.DbContext;
+﻿using AutoMapper;
+using EcommerceApi.Models.DbContext;
 using EcommerceApi.Models.Products;
 using EcommerceApi.Services.UploadFilesSrvice;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,13 @@ namespace EcommerceApi.Services.Products
     {
         private readonly ApplicationDBContext context;
         private readonly IUploadFilesService uploadFilesService;
+        private readonly IMapper mapper;
 
-        public ProductService(ApplicationDBContext applicationDBContext,IUploadFilesService filesService)
+        public ProductService(ApplicationDBContext applicationDBContext,IUploadFilesService filesService,IMapper mapper)
         {
             context = applicationDBContext;
             uploadFilesService = filesService;
+            this.mapper = mapper;
         }
         public async Task<ProductModel> CreatProduct(ProductModelDto product)
         {
@@ -22,15 +25,7 @@ namespace EcommerceApi.Services.Products
             if (!categoryExists)
                 throw new ArgumentException("Invalid Category Id");
 
-            var newProduct = new ProductModel
-            {
-                product_name = product.product_name,
-                product_description = product.product_description,
-                price = product.price,
-                category_id = product.category_id,
-                brand = product.brand,
-                color = product.color,
-            };
+            var newProduct = mapper.Map<ProductModel>(product);
 
             // Process image1 if provided
             if (product.image1 != null)
@@ -92,6 +87,7 @@ namespace EcommerceApi.Services.Products
             var existingProduct = await context.ProductModel.FirstOrDefaultAsync(p => p.product_id == id);
             if (existingProduct == null)
                 return null;
+
             existingProduct.product_name = product.product_name;
             existingProduct.product_description = product.product_description;
             existingProduct.price = product.price;
