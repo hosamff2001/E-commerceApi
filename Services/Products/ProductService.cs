@@ -1,5 +1,6 @@
 ﻿using EcommerceApi.Models.DbContext;
 using EcommerceApi.Models.Products;
+using EcommerceApi.Services.UploadFilesSrvice;
 using Microsoft.EntityFrameworkCore;
 
 namespace EcommerceApi.Services.Products
@@ -7,12 +8,12 @@ namespace EcommerceApi.Services.Products
     public class ProductService : IProductService
     {
         private readonly ApplicationDBContext context;
-        private readonly List<string> allowedextension = new List<string> { ".jpg", ".png" };
-        private readonly long maxlength = 1048576;
+        private readonly IUploadFilesService uploadFilesService;
 
-        public ProductService(ApplicationDBContext applicationDBContext)
+        public ProductService(ApplicationDBContext applicationDBContext,IUploadFilesService filesService)
         {
             context = applicationDBContext;
+            uploadFilesService = filesService;
         }
         public async Task<ProductModel> CreatProduct(ProductModelDto product)
         {
@@ -34,43 +35,19 @@ namespace EcommerceApi.Services.Products
             // Process image1 if provided
             if (product.image1 != null)
             {
-                if (!allowedextension.Contains(Path.GetExtension(product.image1.FileName).ToLower()))
-                    throw new ArgumentException("Invalid Extension for Image1");
-
-                if (product.image1.Length > maxlength)
-                    throw new ArgumentException("Invalid Length for Image1");
-
-                using var datastream1 = new MemoryStream();
-                await product.image1.CopyToAsync(datastream1);
-                newProduct.image1 = datastream1.ToArray();
+                newProduct.image1 = await uploadFilesService.UploadFileAsync(product.image1);
             }
 
             // Process image2 if provided
             if (product.image2 != null)
             {
-                if (!allowedextension.Contains(Path.GetExtension(product.image2.FileName).ToLower()))
-                    throw new ArgumentException("Invalid Extension for Image2");
-
-                if (product.image2.Length > maxlength)
-                    throw new ArgumentException("Invalid Length for Image2");
-
-                using var datastream2 = new MemoryStream();
-                await product.image2.CopyToAsync(datastream2);
-                newProduct.image2 = datastream2.ToArray();
+                newProduct.image2 = await uploadFilesService.UploadFileAsync(product.image2);
             }
 
             // Process image3 if provided
             if (product.image3 != null)
-            {
-                if (!allowedextension.Contains(Path.GetExtension(product.image3.FileName).ToLower()))
-                    throw new ArgumentException("Invalid Extension for Image3");
-
-                if (product.image3.Length > maxlength)
-                    throw new ArgumentException("Invalid Length for Image3");
-
-                using var datastream3 = new MemoryStream();
-                await product.image3.CopyToAsync(datastream3);
-                newProduct.image3 = datastream3.ToArray();
+            { 
+                newProduct.image3 = await uploadFilesService.UploadFileAsync(product.image3);
             }
 
             await context.AddAsync(newProduct);
@@ -125,43 +102,19 @@ namespace EcommerceApi.Services.Products
             // Process image1 if provided
             if (product.image1 != null)
             {
-                if (!allowedextension.Contains(Path.GetExtension(product.image1.FileName).ToLower()))
-                    throw new ArgumentException("Invalid Extension for Image1");
-
-                if (product.image1.Length > maxlength)
-                    throw new ArgumentException("Invalid Length for Image1");
-
-                using var datastream1 = new MemoryStream();
-                await product.image1.CopyToAsync(datastream1);
-                existingProduct.image1 = datastream1.ToArray();
+                existingProduct.image1 = await uploadFilesService.UploadFileAsync(product.image1);
             }
 
             // Process image2 if provided
             if (product.image2 != null)
             {
-                if (!allowedextension.Contains(Path.GetExtension(product.image2.FileName).ToLower()))
-                    throw new ArgumentException("Invalid Extension for Image2");
-
-                if (product.image2.Length > maxlength)
-                    throw new ArgumentException("Invalid Length for Image2");
-
-                using var datastream2 = new MemoryStream();
-                await product.image2.CopyToAsync(datastream2);
-                existingProduct.image2 = datastream2.ToArray();
+                existingProduct.image2 = await uploadFilesService.UploadFileAsync(product.image2);
             }
 
             // Process image3 if provided
             if (product.image3 != null)
             {
-                if (!allowedextension.Contains(Path.GetExtension(product.image3.FileName).ToLower()))
-                    throw new ArgumentException("Invalid Extension for Image3");
-
-                if (product.image3.Length > maxlength)
-                    throw new ArgumentException("Invalid Length for Image3");
-
-                using var datastream3 = new MemoryStream();
-                await product.image3.CopyToAsync(datastream3);
-                existingProduct.image3 = datastream3.ToArray();
+                existingProduct.image3 = await uploadFilesService.UploadFileAsync(product.image3);
             }
             context.ProductModel.Update(existingProduct);
             await context.SaveChangesAsync();
