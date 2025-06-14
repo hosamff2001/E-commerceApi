@@ -71,14 +71,17 @@ namespace EcommerceApi.Services.Products
             // Apply pagination
             var products =  await query
                 .Paginate(pageNumber, pageSize)
+                .Include(p => p.category)
                 .ToListAsync();
-
+            
             return (products, totalRecords);
         }
 
         public async Task<ProductModel> GetProductById(int id)
         {
-            var product = await context.ProductModel.FirstOrDefaultAsync(p => p.product_id == id);
+            var product = await context.ProductModel.Include(p => p.category)
+                .FirstOrDefaultAsync(p => p.product_id == id)
+                ;
             return product;
         }
 
