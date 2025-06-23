@@ -1,5 +1,5 @@
-﻿using AuthenticationApp.Services;
-using EcommerceApi.Models.User;
+﻿using Ecommerce.Core.Models;
+using Ecommerce.EF.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcommerceApi.Controllers

@@ -1,20 +1,19 @@
-using AuthenticationApp.help;
-using AuthenticationApp.Services;
-using EcommerceApi.Models.DbContext;
-using EcommerceApi.Models.User;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.OpenApi.Models;
+using Ecommerce.Core.Interfaces;
+using Ecommerce.Core.Models;
+using Ecommerce.EF.Helpers;
+using Ecommerce.EF.Repositery;
+using Ecommerce.EF.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
-using EcommerceApi.Services.Products;
-using EcommerceApi.Services.Categores;
-using EcommerceApi.Services.UploadFilesSrvice;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -100,7 +99,9 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUploadFilesService, UploadFilesService>();
-
+builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
+builder.Services.AddScoped<IBaseRepositery<ProductModel>, BaseRepositery<ProductModel>>();
+builder.Services.AddScoped<IBaseRepositery<CategoryModel>, BaseRepositery<CategoryModel>>();
 // End 
 var app = builder.Build();
 

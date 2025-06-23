@@ -1,7 +1,6 @@
-﻿using EcommerceApi.Models.Pagination;
-using EcommerceApi.Models.Products;
-using EcommerceApi.Services.Products;
-using Microsoft.AspNetCore.Authorization;
+﻿
+using Ecommerce.Core.Models;
+using Ecommerce.EF.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcommerceApi.Controllers
