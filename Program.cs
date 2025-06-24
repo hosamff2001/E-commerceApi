@@ -23,6 +23,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // End
+
+// add Http Services
+builder.Services.AddHttpContextAccessor();
+// End
 //Authentication
 builder.Services.AddSwaggerGen(options =>
 {
@@ -54,6 +58,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 //add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(typeof(OrderProfile).Assembly);
 
 //End
 
@@ -99,9 +104,11 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUploadFilesService, UploadFilesService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
 builder.Services.AddScoped<IBaseRepositery<ProductModel>, BaseRepositery<ProductModel>>();
 builder.Services.AddScoped<IBaseRepositery<CategoryModel>, BaseRepositery<CategoryModel>>();
+builder.Services.AddScoped<IBaseRepositery<OrderModel>, BaseRepositery<OrderModel>>();
 // End 
 var app = builder.Build();
 

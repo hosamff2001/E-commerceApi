@@ -27,6 +27,8 @@ namespace EcommerceApi.Controllers
             {
                 return BadRequest(result.Message);
             }
+            if (!string.IsNullOrEmpty(result.RefreshToken))
+                SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiryTime, result.Id);
             return Ok(result);
         }
         [HttpPost("login")]
@@ -42,7 +44,7 @@ namespace EcommerceApi.Controllers
                 return BadRequest(result.Message);
             }
             if (!string.IsNullOrEmpty(result.RefreshToken))
-                SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiryTime);
+                SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiryTime, result.Id);
             return Ok(result);
         }
         [HttpPost("addrole")]
@@ -69,12 +71,12 @@ namespace EcommerceApi.Controllers
             if (!result.IsAuthenticated)
                 return BadRequest(result);
 
-            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiryTime);
+            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiryTime,result.Id);
 
             return Ok(result);
         }
 
-        private void SetRefreshTokenInCookie(string refreshToken, DateTime expires)
+        private void SetRefreshTokenInCookie(string refreshToken, DateTime expires,string uid)
         {
             var cookieOptions = new CookieOptions
             {
@@ -86,6 +88,9 @@ namespace EcommerceApi.Controllers
             };
 
             Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+            Response.Cookies.Append("User_id", uid, cookieOptions);
+            //Response.Cookies.Append("User_id", , cookieOptions);
+
         }
     }
 }
