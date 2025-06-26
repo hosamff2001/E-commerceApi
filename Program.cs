@@ -59,6 +59,9 @@ builder.Services.AddSwaggerGen(options =>
 //add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddAutoMapper(typeof(OrderProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ProductProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(CategoryProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(CartsProfile).Assembly);
 
 //End
 
@@ -105,10 +108,12 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUploadFilesService, UploadFilesService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ICartsService, CartsService>();
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
 builder.Services.AddScoped<IBaseRepositery<ProductModel>, BaseRepositery<ProductModel>>();
 builder.Services.AddScoped<IBaseRepositery<CategoryModel>, BaseRepositery<CategoryModel>>();
 builder.Services.AddScoped<IBaseRepositery<OrderModel>, BaseRepositery<OrderModel>>();
+builder.Services.AddScoped<IBaseRepositery<CartsModel>, BaseRepositery<CartsModel>>();
 // End 
 var app = builder.Build();
 
